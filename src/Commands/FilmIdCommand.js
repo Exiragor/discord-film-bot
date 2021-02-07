@@ -7,7 +7,7 @@ const FilmIdCommand = async (message) => {
     if (message.channel.name.includes('фильмы')) {
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
-        await page.goto(`https://www.google.com/search?q=kinopoisk+${673}`);
+        await page.goto(`https://www.google.com/search?q=kinopoisk+${message.content}`);
         let html = await page.content();
         await page.screenshot({ path: 'example.png'});
 
