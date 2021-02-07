@@ -5,7 +5,7 @@ const FilmIdCommand = async (message) => {
     if (message.author.bot && !Number(message.content)) return;
 
     if (message.channel.name.includes('фильмы')) {
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
         const page = await browser.newPage();
         await page.goto(`https://www.google.com/search?q=kinopoisk+${message.content}`);
         let html = await page.content();
