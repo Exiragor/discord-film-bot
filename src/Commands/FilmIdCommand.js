@@ -36,8 +36,8 @@ const FilmIdCommand = async (message) => {
                 title,
                 url,
                 description: url,
-                image: {
-                    url: image
+                thumbnail: {
+                    url: image,
                 }
             }
         });
