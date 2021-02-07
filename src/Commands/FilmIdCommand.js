@@ -2,7 +2,7 @@ const { JSDOM } = require("jsdom");
 const puppeteer = require('puppeteer');
 
 const FilmIdCommand = async (message) => {
-    if (message.author.bot && !Number(message.content)) return;
+    if (message.author.bot || !Number(message.content)) return;
 
     if (message.channel.name.includes('фильмы')) {
         const browser = await puppeteer.launch();
