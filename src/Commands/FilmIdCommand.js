@@ -9,7 +9,6 @@ const FilmIdCommand = async (message) => {
         const page = await browser.newPage();
         await page.goto(`https://www.google.com/search?q=kinopoisk+${message.content}`);
         let html = await page.content();
-        await page.screenshot({ path: 'example.png'});
 
         const search = new JSDOM(html).window.document.querySelector('#search');
         const blocks = Array.from(search.querySelectorAll('div.g'));
