@@ -2,10 +2,10 @@ const { JSDOM } = require("jsdom");
 const puppeteer = require('puppeteer');
 
 const FilmIdCommand = async (message) => {
-    // if (message.author.bot && !Number(message.content)) return;
+    if (message.author.bot && !Number(message.content)) return;
 
-    // if (message.channel.name.includes('фильмы')) {
-        const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
+    if (message.channel.name.includes('фильмы')) {
+        const browser = await puppeteer.launch();
         const page = await browser.newPage();
         await page.goto(`https://www.google.com/search?q=kinopoisk+${673}`);
         let html = await page.content();
@@ -18,9 +18,6 @@ const FilmIdCommand = async (message) => {
 
         const title = film.querySelector('h3').textContent.split(' –')[0];
         const url = film.querySelector('a').href;
-
-        console.log(title);
-        console.log(url);
 
         const [btn] = await page.$x("//a[contains(., 'Картинки')]");
         await btn.click();
@@ -35,22 +32,19 @@ const FilmIdCommand = async (message) => {
         const lsp = new JSDOM(html).window.document.querySelector('#islsp');
         const image = lsp.querySelector('img').src;
 
-
-        console.log(image);
-
-    //     await message.channel.send({
-    //         embed: {
-    //             title,
-    //             url,
-    //             description: url,
-    //             image: {
-    //                 url: image
-    //             }
-    //         }
-    //     });
-    //     await message.delete();
-    //     browser.close();
-    // }
+        await message.channel.send({
+            embed: {
+                title,
+                url,
+                description: url,
+                image: {
+                    url: image
+                }
+            }
+        });
+        await message.delete();
+        browser.close();
+    }
 }
 
 module.exports = FilmIdCommand;
