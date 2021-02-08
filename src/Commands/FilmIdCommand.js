@@ -28,6 +28,13 @@ const FilmIdCommand = async (message) => {
             return;
         }
 
+        const [span] = await page.$x("//span[contains(., 'Рейтинг')]");
+        const rating = await page.evaluate(el => el.textContent, span);
+        const description = `
+            ${url}
+            ${rating}
+        `;
+
         const [btn] = await page.$x("//a[contains(., 'Картинки')]");
         await btn.click();
         await page.waitForNavigation();
@@ -40,12 +47,11 @@ const FilmIdCommand = async (message) => {
             return document.querySelector('#islsp').querySelector('img').src;
         });
 
-
         await message.channel.send({
             embed: {
                 title,
                 url,
-                description: url,
+                description,
                 thumbnail: {
                     url: image || '',
                 }
