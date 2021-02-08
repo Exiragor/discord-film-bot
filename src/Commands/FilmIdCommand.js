@@ -2,12 +2,12 @@ const puppeteer = require('puppeteer');
 const {getFilmLink} = require("../utils");
 
 const FilmIdCommand = async (message) => {
-    // if (message.author.bot || !Number(message.content)) return;
+    if (message.author.bot || !Number(message.content)) return;
 
-    // if (message.channel.name.includes('фильмы')) {
+    if (message.channel.name.includes('фильмы')) {
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
-        await page.goto(`https://www.google.com/search?q=kinopoisk+${965754}`);
+        await page.goto(`https://www.google.com/search?q=kinopoisk+${message.content}`);
         // get film info
         const { title, url } = await page.evaluate(() => {
             const search = document.querySelector('#search');
@@ -45,21 +45,12 @@ const FilmIdCommand = async (message) => {
         });
 
         // search film links
-        let links = [];
-        // links = links.map((link) => {
-        //     return getFilmLink(page, link, title);
-        // });
-        // links = await Promise.all([
-        //     getFilm(page, 'tabfilm', title),
-        //     getFilm(page, 'lordfilm', title),
-        //     getFilm(page, 'kinodrive', title),
-        // ]);
-        links.push(await getFilm(page, 'tabfilm', title));
-        links.push(await getFilm(page, 'lordfilm', title));
-        links.push(await getFilm(page, 'kinodrive', title));
-        console.log(links);
-        links = links.filter(Boolean);
-        const linksStr = links.reduce((acc, curr) => acc + `${curr} \n`, '');
+        const cites = ['tabfilm', 'lordfilm', 'kinodrive'];
+        const links = [];
+        for (const cite of cites) {
+            links.push(await getFilmLink(page, cite, title));
+        }
+        const linksStr = links.filter(Boolean).reduce((acc, curr) => acc + `${curr} \n`, '');
 
         const description = `
             ${url}
@@ -69,36 +60,20 @@ const FilmIdCommand = async (message) => {
             ${linksStr}
         `;
 
-        //send film to discord
-        // await message.channel.send({
-        //     embed: {
-        //         title,
-        //         url,
-        //         description,
-        //         thumbnail: {
-        //             url: image || '',
-        //         }
-        //     }
-        // });
-        // await message.delete();
+        // send film to discord
+        await message.channel.send({
+            embed: {
+                title,
+                url,
+                description,
+                thumbnail: {
+                    url: image || '',
+                }
+            }
+        });
+        await message.delete();
         browser.close();
-    // }
-}
-
-const getFilm = async (page, cite, title) => {
-    await page.goto(`https://www.google.com/search?q=${cite}+${title}`);
-    const blocks = Array.from(page.$$('#search div.g'));
-    const film = blocks.find((block) =>
-        block.querySelector('cite').textContent.includes(cite)
-        &&
-        block.querySelector('h3').textContent.includes(title)
-    );
-    if (!film) return null;
-
-    console.log(film);
-    await film.click();
-    await page.waitForNavigation();
-    return await page.url();
+    }
 }
 
 module.exports = FilmIdCommand;
