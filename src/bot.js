@@ -1,8 +1,11 @@
 const Discord = require("discord.js");
+const {getCommand} = require("./utils");
 
+const prefix = '!';
 const commands = {
-    filmId: require('./Commands/FilmIdCommand')
+    find: require('./commands/FindCommand')
 };
+
 
 const activateBot = async (token, handler) => {
     const bot = new Discord.Client();
@@ -10,13 +13,24 @@ const activateBot = async (token, handler) => {
     handler(bot);
 };
 
-const useCommand = async (bot, name) => {
+const useCommands = async (bot) => {
     bot.on("message", async (message) => {
-        await commands[name](message);
+        if (message.author.bot || !message.channel.name.includes('фильмы')) return;
+
+        if (message.content.includes(prefix)) {
+            const [command, value] = getCommand(message.content);
+            try {
+                await commands[command](message, value);
+            } catch (e) {
+                console.log('Команда не найдена');
+            }
+        } else if (Number(message.content)) {
+            await require('./commands/FilmIdCommand')(message);
+        }
     });
 }
 
 module.exports = {
     activateBot,
-    useCommand
+    useCommands
 };

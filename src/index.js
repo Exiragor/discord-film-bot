@@ -1,7 +1,7 @@
 const config = require('config');
 
-const {activateBot, useCommand} = require('./bot');
+const {activateBot, useCommands} = require('./bot');
 
 activateBot(config.get('BOT_TOKEN'), async (bot) => {
-    await useCommand(bot, 'filmId');
+    await useCommands(bot);
 });
