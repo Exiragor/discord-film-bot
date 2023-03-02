@@ -1,5 +1,5 @@
 # dist files
-dist
+#dist - can't compile it on server TODO
 node_modules
 
 #configs
