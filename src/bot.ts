@@ -9,6 +9,12 @@ export class Bot {
     }
 
     register<K extends keyof ClientEvents>(event: K, handler: (...args: ClientEvents[K]) => void) {
-        this.client.on(event, handler);
+        this.client.on(event, (...args: ClientEvents[K]) => {
+            try {
+                handler(...args);
+            } catch(e) {
+                console.error(e);
+            }
+        });
     }
 }
