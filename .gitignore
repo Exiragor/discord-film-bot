@@ -108,3 +108,4 @@ config/local.json
 
 #ide
 .idea
+.history

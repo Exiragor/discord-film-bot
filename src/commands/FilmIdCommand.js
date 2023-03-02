@@ -11,7 +11,7 @@ const FilmIdCommand = async (message) => {
         const film = blocks.find((block) => block.querySelector('cite').textContent.includes('film'));
         if (!film) return {};
 
-        const [title] = film.querySelector('h3').textContent.split(' –');
+        const [title] = film.querySelector('h3').textContent.split(' -');
         const url = film.querySelector('a').href;
 
         return {
@@ -25,19 +25,19 @@ const FilmIdCommand = async (message) => {
         return;
     }
 
-    const [span] = await page.$x("//span[contains(., 'Рейтинг')]");
+    const [span] = await page.$x("//span[contains(., 'Рейтинг: ')]");
     const rating = await page.evaluate(el => el.textContent, span);
 
     const [btn] = await page.$x("//a[contains(., 'Картинки')]");
     await btn.click();
     await page.waitForNavigation();
-    await page.waitForSelector('#islmp');
-    await page.click("#islmp a");
+    await page.waitForSelector('#islrg');
+    await page.click("#islrg a");
     await page.waitForSelector('#islsp');
     await page.waitForTimeout(500);
 
     const image = await page.evaluate(() => {
-        return document.querySelector('#islsp').querySelector('img').src;
+        return document.querySelector('#islsp').querySelector('a > img').src;
     });
 
     const description = `

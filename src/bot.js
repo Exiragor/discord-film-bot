@@ -1,3 +1,4 @@
+const { GatewayIntentBits } = require("discord.js");
 const Discord = require("discord.js");
 const {getCommand} = require("./utils");
 
