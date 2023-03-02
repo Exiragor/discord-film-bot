@@ -1,14 +1,15 @@
 import config from 'config';
 import {Message} from 'discord.js';
-import {take} from 'rxjs';
+import { findFilm } from '../actions/find-film';
+import { findFilmLinks } from '../actions/find-film-link';
 
-import { Browser } from '../browser';
+import { initBrowser } from '../browser';
 import { BotConfig } from '../types/config';
 import { isKinopoiskLink, parseFilmIdFromLink } from '../utils';
 
 const {channelIds} = config.get<BotConfig>('bot');
 
-export function messageHandler(message: Message) {
+export async function messageHandler(message: Message) {
     if (!channelIds.includes(Number(message.channel.id))) {
         return;
     }
@@ -20,14 +21,14 @@ export function messageHandler(message: Message) {
         return;
     }
 
-    let currentMessage: Message;
     message.delete();
 
-    const browser = new Browser();
-    browser.findFilmById(filmId);
+    const [browser, page] = await initBrowser();
 
-    browser.film$.pipe(take(1)).subscribe(({title, url, imageUrl, description}) => {
-        message.channel.send({
+    try {
+        const {title, url, imageUrl, description} = await findFilm(page, filmId);
+
+        const filmMessage = await message.channel.send({
             embed: {
                 title,
                 url,
@@ -36,29 +37,25 @@ export function messageHandler(message: Message) {
                     url: imageUrl || '',
                 }
             }
-        }).then((mess) => {
-            currentMessage = mess;
-            browser.findWatchLinks(title);
-        })
-    });
+        });
 
+        const filmLinks = await findFilmLinks(page, title);
 
-    browser.filmLinks$.pipe(take(1)).subscribe(links => {
-        if (!links) {
-            return;
-        }
-
-        const [emb] = currentMessage.embeds;
+        const [emb] = filmMessage.embeds;
         emb.setDescription(
             `
                 ${emb.description}
 
-                ${links}
+                ${filmLinks}
             `
         );
 
-        currentMessage.edit({
+        filmMessage.edit({
             embed: emb,
         })
-    });
+    } catch(err) {
+        console.error(err);
+    } finally {
+        browser.close();
+    }
 }

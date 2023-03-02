@@ -8,7 +8,7 @@ export class Bot {
         this.client.login(token);
     }
 
-    register<K extends keyof ClientEvents>(event: K, handler: (...args: ClientEvents[K]) => void) {
+    register<K extends keyof ClientEvents>(event: K, handler: (...args: ClientEvents[K]) => Promise<void> | void) {
         this.client.on(event, (...args: ClientEvents[K]) => {
             try {
                 handler(...args);
