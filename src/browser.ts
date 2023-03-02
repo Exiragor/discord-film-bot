@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
-import {Page} from 'puppeteer';
+import type * as Puppeteer from 'puppeteer-core'
 
-import { Subject, switchMap, from } from 'rxjs';
+import { Subject, switchMap, from, map } from 'rxjs';
 import { FilmId } from './types/film';
 
 
@@ -10,7 +10,9 @@ export class Browser {
     private readonly filmTitle$ = new Subject<string>();
 
     readonly film$ = this.filmId$.pipe(
-        switchMap(id => this.initialize().pipe(map(page => [page, id]))),
+        switchMap((id) => this.initialize().pipe(
+            map<unknown, [Puppeteer.Page, number]>(page => [page as Puppeteer.Page, id]))
+        ),
         switchMap(([page, id]) => this.findFilm(page, id))
     );
 
@@ -30,17 +32,17 @@ export class Browser {
         ).pipe(switchMap(b => b.newPage()))
     }
 
-    private async findFilm(page: any, id: number) {
+    private async findFilm(page: Puppeteer.Page, id: number) {
         await page.goto(`https://www.google.com/search?q=kinopoisk+${id}`);
     // get film info
     const { title, url } = await page.evaluate(() => {
         const search = document.querySelector('#search');
-        const blocks = Array.from(search.querySelectorAll('div.g'));
-        const film = blocks.find((block) => block.querySelector('cite').textContent.includes('film'));
+        const blocks = Array.from(search?.querySelectorAll('div.g') || []);
+        const film = blocks.find((block) => block.querySelector('cite')?.textContent?.includes('film'));
         if (!film) return {};
 
-        const [title] = film.querySelector('h3').textContent.split(' -');
-        const url = film.querySelector('a').href;
+        const [title] = film.querySelector('h3')?.textContent?.split(' -') || [''];
+        const url = film.querySelector('a')?.href;
 
         return {
             title,
@@ -51,7 +53,7 @@ export class Browser {
     const [span] = await page.$x("//span[contains(., 'Рейтинг: ')]");
     const rating = await page.evaluate((el: any) => el.textContent, span);
 
-    const [btn] = await page.$x("//a[contains(., 'Картинки')]");
+    const [btn] = await page.$x("//a[contains(., 'Картинки')]") as [Puppeteer.ElementHandle<Element>];
     await btn.click();
     await page.waitForNavigation();
     await page.waitForSelector('#islrg');
@@ -60,7 +62,7 @@ export class Browser {
     await page.waitForTimeout(500);
 
     const image = await page.evaluate(() => {
-        return document.querySelector('#islsp').querySelector('a > img').src;
+        return document.querySelector('#islsp')?.querySelector<HTMLImageElement>('a > img')?.src || '';
     });
 
     const description = `
