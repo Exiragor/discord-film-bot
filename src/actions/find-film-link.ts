@@ -1,4 +1,14 @@
-export async function findFilmLink(page: any, cite: string, title: string) {
+export async function findFilmLink(page: any, title: string) {
+    // search film links
+    const cites = ['lordfilm', 'filmhd1080'];
+    const links = [];
+    for (const cite of cites) {
+        links.push(await getFilmLink(page, cite, title));
+    }
+    return links.filter(Boolean).reduce((acc, curr) => acc + `${curr} \n`, '');
+}
+
+export async function getFilmLink(page: any, cite: string, title: string) {
     await page.goto(`https://www.google.com/search?q=${cite}+${title}`);
     const blocks = Array.from<any>(await page.$$('#search div.g'));
     const film = blocks.find(async (block: any) => {

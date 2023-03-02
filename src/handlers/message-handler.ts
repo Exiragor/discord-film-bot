@@ -33,4 +33,23 @@ export function messageHandler(message: Message) {
     });
 
     browser.findFilmById(filmId);
+
+    browser.filmLinks$.pipe(take(1)).subscribe(links => {
+        if (!links) {
+            return;
+        }
+
+        const [emb] = currentMessage.embeds;
+        emb.setDescription(
+            `
+                ${emb.description}
+
+                ${links}
+            `
+        );
+
+        currentMessage.edit({
+            embed: emb,
+        })
+    });
 }
