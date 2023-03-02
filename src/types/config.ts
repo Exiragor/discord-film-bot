@@ -1,5 +1,5 @@
 export interface BotConfig {
     token: string;
-    channelId: number[];
+    channelIds: number[];
     filmCites: string[];
 }

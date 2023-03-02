@@ -1,10 +1,18 @@
+import config from 'config';
 import {Message} from 'discord.js';
 import {take} from 'rxjs';
 
 import { Browser } from '../browser';
+import { BotConfig } from '../types/config';
 import { isKinopoiskLink, parseFilmIdFromLink } from '../utils';
 
+const {channelIds} = config.get<BotConfig>('bot');
+
 export function messageHandler(message: Message) {
+    if (!channelIds.includes(Number(message.channel.id))) {
+        return;
+    }
+
     const content = message.content;
     const filmId = isKinopoiskLink(content) && parseFilmIdFromLink(content) || Number(content);
 
@@ -16,6 +24,8 @@ export function messageHandler(message: Message) {
     message.delete();
 
     const browser = new Browser();
+    browser.findFilmById(filmId);
+
     browser.film$.pipe(take(1)).subscribe(({title, url, imageUrl, description}) => {
         message.channel.send({
             embed: {
@@ -32,7 +42,6 @@ export function messageHandler(message: Message) {
         })
     });
 
-    browser.findFilmById(filmId);
 
     browser.filmLinks$.pipe(take(1)).subscribe(links => {
         if (!links) {

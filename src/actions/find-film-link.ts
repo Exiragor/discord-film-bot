@@ -1,8 +1,13 @@
+import config from 'config';
+import { BotConfig } from '../types/config';
+
+const {filmCites} = config.get<BotConfig>('bot');
+
 export async function findFilmLink(page: any, title: string) {
     // search film links
     const cites = ['lordfilm', 'filmhd1080'];
     const links = [];
-    for (const cite of cites) {
+    for (const cite of filmCites) {
         links.push(await getFilmLink(page, cite, title));
     }
     return links.filter(Boolean).reduce((acc, curr) => acc + `${curr} \n`, '');
