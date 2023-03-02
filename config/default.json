@@ -1,3 +1,7 @@
 {
-  "BOT_TOKEN": "YOUR BOT TOKEN"
+  "bot": {
+    "token": "YOUR BOT TOKEN",
+    "channelId": [806248903771029529],
+    "filmCites": []
+  }
 }
