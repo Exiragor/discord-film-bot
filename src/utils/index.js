@@ -19,7 +19,9 @@ module.exports.getFilmLink = async (page, cite, title) => {
 }
 
 module.exports.initChrome = async () => {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch(
+        {headless: true, args:['--no-sandbox']}
+    );
     return [browser, await browser.newPage()];
 }
 
