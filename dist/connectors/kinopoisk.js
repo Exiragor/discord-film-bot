@@ -7,10 +7,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { Kinopoisk } from '../connectors/kinopoisk.js';
-export function findFilm(id) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const kp = new Kinopoisk();
-        return yield kp.getFilmById(id);
-    });
+import config from 'config';
+import { FilmDto } from '../dto/film.dto.js';
+import got from 'got';
+const kpConfig = config.get('kinopoisk');
+export class Kinopoisk {
+    constructor() {
+        this.baseHref = 'https://api.kinopoisk.dev';
+        this.httpOptions = {
+            headers: {
+                'X-API-KEY': kpConfig.token
+            }
+        };
+    }
+    getFilmById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const url = `${this.baseHref}/v1.3/movie/${id}`;
+            const data = yield got(url, this.httpOptions).json();
+            return FilmDto.fromMovie(data);
+        });
+    }
 }

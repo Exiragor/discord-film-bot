@@ -1,7 +1,9 @@
 {
   "bot": {
     "token": "YOUR BOT TOKEN",
-    "channelIds": [806248903771029529],
-    "filmCites": []
+    "channelIds": [806248903771029529]
+  },
+  "kinopoisk": {
+    "token": "YOUR API TOKEN"
   }
 }
