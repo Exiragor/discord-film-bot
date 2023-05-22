@@ -1,4 +1,5 @@
-import { type Film, type Movie } from '../types/film.js'
+import { type Film } from '../types/film.js'
+import { type Movie } from '../types/movie.js'
 import { toKinopoiskLink } from '../utils/index.js'
 import { type MessageOptions } from 'discord.js'
 
@@ -32,7 +33,7 @@ export class FilmDto implements Film {
         ${url}
         Kp ${parseRating(movie.rating.kp)} — Imdb ${parseRating(movie.rating.imdb)} — Критики ${parseRating(movie.rating.filmCritics)}
         
-        ${movie.shortDescription}
+        ${movie.shortDescription || ''}
     `
 
     return new FilmDto(

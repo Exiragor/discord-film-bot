@@ -26,7 +26,7 @@ export class FilmDto {
         ${url}
         Kp ${parseRating(movie.rating.kp)} — Imdb ${parseRating(movie.rating.imdb)} — Критики ${parseRating(movie.rating.filmCritics)}
         
-        ${movie.shortDescription}
+        ${movie.shortDescription || ''}
     `;
         return new FilmDto(title, url, description, movie.poster.url);
     }

@@ -1,6 +1,6 @@
 import config from 'config'
 import { type KpConfig } from '../types/config.js'
-import { type Movie } from '../types/film.js'
+import { type Movie } from '../types/movie.js'
 import { FilmDto } from '../dto/film.dto.js'
 import got from 'got'
 
