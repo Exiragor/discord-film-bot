@@ -1,61 +1,30 @@
-import config from 'config';
-import {Message} from 'discord.js';
-import { findFilm } from '../actions/find-film';
-import { findFilmLinks } from '../actions/find-film-link';
+import config from 'config'
+import { findFilm } from '../actions/find-film.js'
 
-import { initBrowser } from '../browser';
-import { BotConfig } from '../types/config';
-import { isKinopoiskLink, parseFilmIdFromLink } from '../utils';
+import { type Message } from 'discord.js'
+import { type BotConfig } from '../types/config.js'
+import { isKinopoiskLink, parseFilmIdFromLink } from '../utils/index.js'
 
-const {channelIds} = config.get<BotConfig>('bot');
+const { channelIds } = config.get<BotConfig>('bot')
 
-export async function messageHandler(message: Message) {
-    if (!channelIds.includes(Number(message.channel.id))) {
-        return;
-    }
+export async function messageHandler (message: Message): Promise<void> {
+  if (!channelIds.includes(Number(message.channel.id))) {
+    return
+  }
 
-    const content = message.content;
-    const filmId = isKinopoiskLink(content) && parseFilmIdFromLink(content) || Number(content);
+  const content = message.content
+  const filmId: number = (isKinopoiskLink(content) && parseFilmIdFromLink(content)) || Number(content)
 
-    if (!filmId) {
-        return;
-    }
+  if (!filmId) {
+    return
+  }
 
-    message.delete();
+  message.delete().catch(console.error)
 
-    const [browser, page] = await initBrowser();
-
-    try {
-        const {title, url, imageUrl, description} = await findFilm(page, filmId);
-
-        const filmMessage = await message.channel.send({
-            embed: {
-                title,
-                url,
-                description,
-                thumbnail: {
-                    url: imageUrl || '',
-                }
-            }
-        });
-
-        const filmLinks = await findFilmLinks(page, title);
-
-        const [emb] = filmMessage.embeds;
-        emb.setDescription(
-            `
-                ${emb.description}
-
-                ${filmLinks}
-            `
-        );
-
-        filmMessage.edit({
-            embed: emb,
-        })
-    } catch(err) {
-        console.error(err);
-    } finally {
-        browser.close();
-    }
+  try {
+    const filmDto = await findFilm(filmId)
+    await message.channel.send(filmDto.toDiscordMessage())
+  } catch (err) {
+    console.error(err)
+  }
 }

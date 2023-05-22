@@ -1,10 +1,10 @@
-import config from 'config';
+import config from 'config'
 
-import { Bot } from './bot';
-import { messageHandler } from './handlers/message-handler';
-import { BotConfig } from './types/config';
+import { DiscordBot } from './connectors/discord-bot.js'
+import { messageHandler } from './handlers/message-handler.js'
+import { type BotConfig } from './types/config.js'
 
-const botConfig = config.get<BotConfig>('bot');
-const bot = new Bot(botConfig.token);
+const botConfig = config.get<BotConfig>('bot')
+const bot = new DiscordBot(botConfig.token)
 
-bot.register('message', messageHandler);
+bot.register('message', messageHandler)
